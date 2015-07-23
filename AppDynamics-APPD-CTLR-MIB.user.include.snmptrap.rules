@@ -1,0 +1,19 @@
+###############################################################################
+# AppDynamics-APPD-CTLR-MIB
+# Automatically created by MIB Manager
+# May 27, 2015 10:20:02 AM
+###############################################################################
+
+log(DEBUG, "<<<<< Entering... AppDynamics-APPD-CTLR-MIB.user.include.snmptrap.rules >>>>>")
+
+	switch($specific-trap) {
+	case "1": ### - policyOpenWarning
+	case "2": ### - policyOpenCritical
+	case "3": ### - policyOpenUpgraded
+	case "4": ### - policyOpenDowngraded
+	case "5": ### - policyClosed
+	case "6": ### - nonPolicyEvent
+		default:
+}
+
+log(DEBUG, "<<<<< Leaving... AppDynamics-APPD-CTLR-MIB.user.include.snmptrap.rules >>>>>")

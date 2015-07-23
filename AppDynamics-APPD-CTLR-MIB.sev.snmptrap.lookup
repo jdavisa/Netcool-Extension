@@ -1,0 +1,48 @@
+###############################################################################
+# AppDynamics-APPD-CTLR-MIB
+# Automatically created by MIB Manager
+# May 27, 2015 10:20:02 AM
+###############################################################################
+
+###############################################################################
+# Entries in a Severity lookup table have the following format:
+#
+# {<"EventId">,<"severity">,<"type"><"expiretime">}
+#
+# <"EventId"> is defined in the Rules File.  In some cases it is necessary to
+# add a modifier to the EventId to further clarify the condition.
+#
+# Valid values for <severity> are:
+#   0 - clear
+#   1 - indeterminate
+#   2 - warning
+#   3 - minor
+#   4 - major
+#   5 - critical
+#   d - discard
+#
+# Valid values for <type> are:
+#   1 - problem
+#   2 - resolution, NOTE: resolution alarms MUST have a <severity> of 1.
+#   11 - more severe
+#   12 - less severe
+#   13 - information
+#
+# <expiretime> is the number of seconds the event will remain in the
+# ObjectServer before being automatically cleared. Alarms which should not
+# expire MUST have <expiretime> set to 0 (zero).
+#
+###############################################################################
+
+# AppDynamics-APPD-CTLR-MIB.sev.snmptrap.lookup
+
+table AppDynamics-APPD-CTLR-MIB_sev =
+{
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenDowngraded","3","1","1800"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenCritical","5","1","1800"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-nonPolicyEvent","3","1","1800"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenUpgraded","3","1","1800"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenWarning","3","1","1800"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyClosed","0","1","1800"}
+}
+default = {"Unknown","Unknown","Unknown"}

@@ -1,0 +1,949 @@
+###############################################################################
+# AppDynamics-APPD-CTLR-MIB
+# Automatically created by MIB Manager
+# May 27, 2015 10:20:02 AM
+###############################################################################
+
+case ".1.3.6.1.4.1.40684.1.1.1.500":  ### notifications - Traps from APPD-CTLR-MIB (201209010000Z)
+
+	log(DEBUG, "<<<<< Entering... AppDynamics-APPD-CTLR-MIB.include.snmptrap.rules >>>>>")
+
+	@Agent = "APPD-CTLR-MIB"
+
+	switch($specific-trap) {
+		case "1": ### - policyOpenWarning
+			#######################
+			#
+			# Policy Open Warning Notification
+			#
+			# $1 = application
+			#
+			#      Application name
+			#
+			# $2 = triggeredBy
+			#
+			#      Entities that triggered this event. Comma separated list
+			#
+			# $3 = nodes
+			#
+			#      Nodes that triggered this event. Comma separated list
+			#
+			# $4 = txns
+			#
+			#      Transactions that triggered this event. Comma separated list
+			#
+			# $5 = machines
+			#
+			#      Machines that triggered this event. Comma separated list of identifiers
+			#
+			# $6 = tiers
+			#
+			#      Tiers that triggered this event. Comma separated list
+			#
+			# $7 = eventTime
+			#
+			#      Event time
+			#
+			# $8 = severity
+			#
+			#      Event severity ERROR, WARN, INFO
+			#
+			# $9 = type
+			#
+			#      Event type
+			#
+			# $10 = subtype
+			#
+			#      Event subtype
+			#
+			# $11 = summary
+			#
+			#      Event summary text
+			#
+			# $12 = link
+			#
+			#      Deep link to event
+			#
+			# $13 = tag
+			#
+			#      Tag of the event
+			#
+			# $14 = eventType
+			#
+			#      Type of the event like POLICY_OPEN, POLICY_CLOSE etc
+			#
+			# $15 = ipAddresses
+			#
+			#      IP Addresses for affected nodes
+			#
+			# $16 = incidentId
+			#
+			#      The unique ID for the health rule violation
+			#
+			#######################
+
+			$application = $1
+			$triggeredBy = $2
+			$nodes = $3
+			$txns = $4
+			$machines = $5
+			$tiers = $6
+			$eventTime = $7
+			$severity = $8
+			$type = $9
+			$subtype = $10
+			$summary = $11
+			$link = $12
+			@URL = $link
+			$tag = $13
+			$eventType = $14
+			$ipAddresses = $15
+			$incidentId = $16
+			$OS_EventId = "SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenWarning"
+			if(regmatch($severity,"ERROR")){
+				$OS_EventId = "SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenCritical"
+			}
+			@Node=$1
+
+			@AlertKey = $application+$triggeredBy+$nodes+$txns
+
+			switch($type) {
+				case "BUSINESS_TRANSACTION":
+				if (regmatch($summary,".* for the (.*) Business Transaction.*"))
+				{
+				  $problem_bt=extract($summary,".* for the (.*) Business Transaction.*")
+				  @AlertKey = $problem_bt
+				  $problem_time=extract($summary,".*Business Transaction for the(.*)")
+				  @Summary = "The Business Transaction: "+$problem_bt+" has been slow for the "+$problem_time
+				} else {
+				   log( ERROR, "Data not in expected format: ["+$summary+"]" )
+				}
+				case "APPLICATION_COMPONENT_NODE":
+				if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+				  @Summary=extract($sum_msg,".* - (.*)")
+				  $server_node=extract($sum_msg,"^(\w*).*")
+				  @AlertKey=$server_node
+				} else {
+				  @Summary=$summary
+				  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+				}
+				case "APPLICATION":
+				if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+				  @Summary=extract($sum_msg,".* - (.*)")
+				  $server_node=extract($sum_msg,"^(\w*).*")
+				  @AlertKey=$server_node
+				} else {
+				  @Summary=$summary
+				  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+				}
+			default:
+				if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+				  $server_node=extract($sum_msg,"^(\w*).*")
+				  @AlertKey=$server_node
+				} else {
+				  @Summary=$summary
+				  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+				}
+			details($*)
+			}
+
+			@AlertGroup = $triggeredBy
+
+			#switch($eventType) {
+			#	case "POLICY_OPEN":
+			#	  $DEFAULT_Severity = 3
+			#	  @Severity=3
+			#	  $DEFAULT_Type = 1
+			#	  @Type=1
+			#	case "POLICY_CLOSE":
+			#	  $DEFAULT_Severity = 0
+			#	  $DEFAULT_Type = 2
+			#	  @Type=2
+			#	default:
+			#}
+
+		        $DEFAULT_ExpireTime = 1800
+			@ExpireTime = 1800
+
+			@Identifier = @Node + " " + $txns + " " + @AlertGroup + " " + @AlertKey
+
+			details($OS_EventId,$sum_msg,$application,$triggeredBy,$nodes,$txns,$machines,$tiers,$eventTime,$severity,$type,$subtype,$summary,$link,$tag,$eventType,$ipAddresses,$incidentId)
+
+		case "2": ### - policyOpenCritical
+			#######################
+			#
+			# Policy Open Critical Notification
+			#
+			# $1 = application
+			#
+			#      Application name
+			#
+			# $2 = triggeredBy
+			#
+			#      Entities that triggered this event. Comma separated list
+			#
+			# $3 = nodes
+			#
+			#      Nodes that triggered this event. Comma separated list
+			#
+			# $4 = txns
+			#
+			#      Transactions that triggered this event. Comma separated list
+			#
+			# $5 = machines
+			#
+			#      Machines that triggered this event. Comma separated list of identifiers
+			#
+			# $6 = tiers
+			#
+			#      Tiers that triggered this event. Comma separated list
+			#
+			# $7 = eventTime
+			#
+			#      Event time
+			#
+			# $8 = severity
+			#
+			#      Event severity ERROR, WARN, INFO
+			#
+			# $9 = type
+			#
+			#      Event type
+			#
+			# $10 = subtype
+			#
+			#      Event subtype
+			#
+			# $11 = summary
+			#
+			#      Event summary text
+			#
+			# $12 = link
+			#
+			#      Deep link to event
+			#
+			# $13 = tag
+			#
+			#      Tag of the event
+			#
+			# $14 = eventType
+			#
+			#      Type of the event like POLICY_OPEN, POLICY_CLOSE etc
+			#
+			# $15 = ipAddresses
+			#
+			#      IP Addresses for affected nodes
+			#
+			# $16 = incidentId
+			#
+			#      The unique ID for the health rule violation
+			#
+			#######################
+
+			$application = $1
+			$triggeredBy = $2
+			$nodes = $3
+			$txns = $4
+			$machines = $5
+			$tiers = $6
+			$eventTime = $7
+			$severity = $8
+			$type = $9
+			$subtype = $10
+			$summary = $11
+			$link = $12
+			@URL=$link
+			$tag = $13
+			$eventType = $14
+			$ipAddresses = $15
+			$incidentId = $16
+			$OS_EventId = "SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenCritical"
+
+			@Node=$application
+
+                        switch($type) {
+                                case "BUSINESS_TRANSACTION":
+                                if (regmatch($summary,".* for the (.*) Business Transaction.*"))
+                                {
+                                  $problem_bt=extract($summary,".* for the (.*) Business Transaction.*")
+                                  @AlertKey = $problem_bt
+                                  $problem_time=extract($summary,".*Business Transaction for the(.*)")
+                                  @Summary = "The Business Transaction: "+$problem_bt+" has been slow for the "+$problem_time
+                                } else {
+                                   log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION_COMPONENT_NODE":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        default:
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        details($*)
+                        }
+
+			@AlertGroup = $triggeredBy
+
+
+			$DEFAULT_Severity = 5
+			$DEFAULT_Type = 1
+			$DEFAULT_ExpireTime = 1800
+			@ExpireTime = 1800
+
+			@Identifier = @Node + " " + $txns + " " + @AlertGroup + " " + @AlertKey
+
+			details($OS_EventId,$application,$triggeredBy,$nodes,$txns,$machines,$tiers,$eventTime,$severity,$type,$subtype,$summary,$link,$tag,$eventType,$ipAddresses,$incidentId)
+
+		case "3": ### - policyOpenUpgraded
+			#######################
+			#
+			# Policy Open Upgraded Notification
+			#
+			# $1 = application
+			#
+			#      Application name
+			#
+			# $2 = triggeredBy
+			#
+			#      Entities that triggered this event. Comma separated list
+			#
+			# $3 = nodes
+			#
+			#      Nodes that triggered this event. Comma separated list
+			#
+			# $4 = txns
+			#
+			#      Transactions that triggered this event. Comma separated list
+			#
+			# $5 = machines
+			#
+			#      Machines that triggered this event. Comma separated list of identifiers
+			#
+			# $6 = tiers
+			#
+			#      Tiers that triggered this event. Comma separated list
+			#
+			# $7 = eventTime
+			#
+			#      Event time
+			#
+			# $8 = severity
+			#
+			#      Event severity ERROR, WARN, INFO
+			#
+			# $9 = type
+			#
+			#      Event type
+			#
+			# $10 = subtype
+			#
+			#      Event subtype
+			#
+			# $11 = summary
+			#
+			#      Event summary text
+			#
+			# $12 = link
+			#
+			#      Deep link to event
+			#
+			# $13 = tag
+			#
+			#      Tag of the event
+			#
+			# $14 = eventType
+			#
+			#      Type of the event like POLICY_OPEN, POLICY_CLOSE etc
+			#
+			# $15 = ipAddresses
+			#
+			#      IP Addresses for affected nodes
+			#
+			# $16 = incidentId
+			#
+			#      The unique ID for the health rule violation
+			#
+			#######################
+
+			$application = $1
+			$triggeredBy = $2
+			$nodes = $3
+			$txns = $4
+			$machines = $5
+			$tiers = $6
+			$eventTime = $7
+			$severity = $8
+			$type = $9
+			$subtype = $10
+			$summary = $11
+			$link = $12
+			@URL=$link
+			$tag = $13
+			$eventType = $14
+			$ipAddresses = $15
+			$incidentId = $16
+			$OS_EventId = "SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenUpgraded"
+
+			@AlertGroup = $triggeredBy
+			@AlertKey = $application+$triggeredBy+$nodes+$txns+$machines+$tiers+$eventTime+$severity+$type+$subtype+$summary+$link+$tag+$eventType+$ipAddresses+$incidentId
+			@Summary = "policyOpenUpgraded: Policy Open Upgraded Notification"
+
+                        switch($type) {
+                                case "BUSINESS_TRANSACTION":
+                                if (regmatch($summary,".* for the (.*) Business Transaction.*"))
+                                {
+                                  $problem_bt=extract($summary,".* for the (.*) Business Transaction.*")
+                                  @AlertKey = $problem_bt
+                                  $problem_time=extract($summary,".*Business Transaction for the(.*)")
+                                  @Summary = "The Business Transaction: "+$problem_bt+" has been slow for the "+$problem_time
+                                } else {
+                                   log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION_COMPONENT_NODE":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        default:
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        details($*)
+                        }
+
+			$DEFAULT_Severity = 3
+			$DEFAULT_Type = 1
+			$DEFAULT_ExpireTime = 0
+			@ExpireTime = 1800
+
+			@Identifier = @Node + " " + @AlertKey + " " + @AlertGroup + " " + $DEFAULT_Type + " " + @Agent + " " + @Manager + " " + $specific-trap
+
+			details($application,$triggeredBy,$nodes,$txns,$machines,$tiers,$eventTime,$severity,$type,$subtype,$summary,$link,$tag,$eventType,$ipAddresses,$incidentId)
+
+		case "4": ### - policyOpenDowngraded
+			#######################
+			#
+			# Policy Open Downgraded Notification
+			#
+			# $1 = application
+			#
+			#      Application name
+			#
+			# $2 = triggeredBy
+			#
+			#      Entities that triggered this event. Comma separated list
+			#
+			# $3 = nodes
+			#
+			#      Nodes that triggered this event. Comma separated list
+			#
+			# $4 = txns
+			#
+			#      Transactions that triggered this event. Comma separated list
+			#
+			# $5 = machines
+			#
+			#      Machines that triggered this event. Comma separated list of identifiers
+			#
+			# $6 = tiers
+			#
+			#      Tiers that triggered this event. Comma separated list
+			#
+			# $7 = eventTime
+			#
+			#      Event time
+			#
+			# $8 = severity
+			#
+			#      Event severity ERROR, WARN, INFO
+			#
+			# $9 = type
+			#
+			#      Event type
+			#
+			# $10 = subtype
+			#
+			#      Event subtype
+			#
+			# $11 = summary
+			#
+			#      Event summary text
+			#
+			# $12 = link
+			#
+			#      Deep link to event
+			#
+			# $13 = tag
+			#
+			#      Tag of the event
+			#
+			# $14 = eventType
+			#
+			#      Type of the event like POLICY_OPEN, POLICY_CLOSE etc
+			#
+			# $15 = ipAddresses
+			#
+			#      IP Addresses for affected nodes
+			#
+			# $16 = incidentId
+			#
+			#      The unique ID for the health rule violation
+			#
+			#######################
+
+			$application = $1
+			$triggeredBy = $2
+			$nodes = $3
+			$txns = $4
+			$machines = $5
+			$tiers = $6
+			$eventTime = $7
+			$severity = $8
+			$type = $9
+			$subtype = $10
+			$summary = $11
+			$link = $12
+			@URL=$link
+			$tag = $13
+			$eventType = $14
+			$ipAddresses = $15
+			$incidentId = $16
+			$OS_EventId = "SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenDowngraded"
+
+			@AlertGroup = $triggeredBy
+			@AlertKey = $application+$triggeredBy+$nodes+$txns+$machines+$tiers+$eventTime+$severity+$type+$subtype+$summary+$link+$tag+$eventType+$ipAddresses+$incidentId
+			@Summary = "policyOpenDowngraded: Policy Open Downgraded Notification"
+
+
+                        switch($type) {
+                                case "BUSINESS_TRANSACTION":
+                                if (regmatch($summary,".* for the (.*) Business Transaction.*"))
+                                {
+                                  $problem_bt=extract($summary,".* for the (.*) Business Transaction.*")
+                                  @AlertKey = $problem_bt
+                                  $problem_time=extract($summary,".*Business Transaction for the(.*)")
+                                  @Summary = "The Business Transaction: "+$problem_bt+" has been slow for the "+$problem_time
+                                } else {
+                                   log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION_COMPONENT_NODE":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        default:
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        details($*)
+                        }
+
+			$DEFAULT_Severity = 3
+			$DEFAULT_Type = 1
+			$DEFAULT_ExpireTime = 0
+			@ExpireTime = 1800
+
+			@Identifier = @Node + " " + @AlertKey + " " + @AlertGroup + " " + $DEFAULT_Type + " " + @Agent + " " + @Manager + " " + $specific-trap
+
+			details($application,$triggeredBy,$nodes,$txns,$machines,$tiers,$eventTime,$severity,$type,$subtype,$summary,$link,$tag,$eventType,$ipAddresses,$incidentId)
+
+		case "5": ### - policyClosed
+			#######################
+			#
+			# Policy Closed Notification
+			#
+			# $1 = application
+			#
+			#      Application name
+			#
+			# $2 = triggeredBy
+			#
+			#      Entities that triggered this event. Comma separated list
+			#
+			# $3 = nodes
+			#
+			#      Nodes that triggered this event. Comma separated list
+			#
+			# $4 = txns
+			#
+			#      Transactions that triggered this event. Comma separated list
+			#
+			# $5 = machines
+			#
+			#      Machines that triggered this event. Comma separated list of identifiers
+			#
+			# $6 = tiers
+			#
+			#      Tiers that triggered this event. Comma separated list
+			#
+			# $7 = eventTime
+			#
+			#      Event time
+			#
+			# $8 = severity
+			#
+			#      Event severity ERROR, WARN, INFO
+			#
+			# $9 = type
+			#
+			#      Event type
+			#
+			# $10 = subtype
+			#
+			#      Event subtype
+			#
+			# $11 = summary
+			#
+			#      Event summary text
+			#
+			# $12 = link
+			#
+			#      Deep link to event
+			#
+			# $13 = tag
+			#
+			#      Tag of the event
+			#
+			# $14 = eventType
+			#
+			#      Type of the event like POLICY_CONTINUES_CRITICAL, POLICY_OPEN, POLICY_CLOSE etc
+			#
+			# $15 = ipAddresses
+			#
+			#      IP Addresses for affected nodes
+			#
+			# $16 = incidentId
+			#
+			#      The unique ID for the health rule violation
+			#
+			#######################
+
+			$application = $1
+			$triggeredBy = $2
+			$nodes = $3
+			$txns = $4
+			$machines = $5
+			$tiers = $6
+			$eventTime = $7
+			$severity = $8
+			$type = $9
+			$subtype = $10
+			$summary = $11
+			$link = $12
+			@URL=$link
+			$tag = $13
+			$eventType = $14
+			$ipAddresses = $15
+			$incidentId = $16
+			#$OS_EventId = "SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyClosed"
+
+                        @Node=$1
+
+                        @AlertKey = $application+$triggeredBy+$nodes+$txns
+
+                        switch($type) {
+                                case "BUSINESS_TRANSACTION":
+                                if (regmatch($summary,".* for the (.*) Business Transaction.*"))
+                                {
+                                  $problem_bt=extract($summary,".* for the (.*) Business Transaction.*")
+                                  @AlertKey = $problem_bt
+                                  $problem_time=extract($summary,".*Business Transaction for the(.*)")
+                                  @Summary = "The Business Transaction: "+$problem_bt+" has been slow for the "+$problem_time
+                                } else {
+                                   log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION_COMPONENT_NODE":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                                case "APPLICATION":
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  @Summary=extract($sum_msg,".* - (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        default:
+                                if (regmatch($summary,".*For Evaluation Entity: (.*)"))
+                                {
+                                  $sum_msg=extract($summary,".*For Evaluation Entity: (.*)")
+                                  $server_node=extract($sum_msg,"^(\w*).*")
+                                  @AlertKey=$server_node
+                                } else {
+                                  @Summary=$summary
+                                  log( ERROR, "Data not in expected format: ["+$summary+"]" )
+                                }
+                        details($*)
+                        }
+
+                        @AlertGroup = $triggeredBy
+
+                        switch($eventType) {
+                               case "POLICY_OPEN":
+                                 $DEFAULT_Type = 1
+                                 @Type=1
+                               case "POLICY_CLOSE":
+                                 $DEFAULT_Type = 2
+                                 @Type=2
+			       case "POLICY_CONTINUES_CRITICAL":
+				 $DEFAULT_TYPE=1
+                               default:
+				 $DEFAULT_TYPE=1
+                        }
+			switch($severity) {
+				case "ERROR":
+				  $DEFAULT_Severity = 5
+				  @Severity=5
+				case "WARN":
+				  $DEFAULT_Severity = 3
+				  @Severity=3
+				case "INFO":
+				  $DEFAULT_Severity = 2
+				  @Severity=2
+				default:
+				  @Severity=2
+				  $DEFAULT_Severity=2
+			}
+                        $DEFAULT_ExpireTime = 1800
+
+                        @Identifier = @Node + " " + $txns + " " + @AlertGroup + " " + @AlertKey
+
+                        #details($OS_EventId,$sum_msg,$application,$triggeredBy,$nodes,$txns,$machines,$tiers,$eventTime,$severity,$type,$subtype,$summary,$link,$tag,$eventType,$ipAddresses,$incidentId)
+                        details($*)
+
+		case "6": ### - nonPolicyEvent
+			#######################
+			#
+			# Informational Event Notification
+			#
+			# $1 = application
+			#
+			#      Application name
+			#
+			# $2 = triggeredBy
+			#
+			#      Entities that triggered this event. Comma separated list
+			#
+			# $3 = nodes
+			#
+			#      Nodes that triggered this event. Comma separated list
+			#
+			# $4 = txns
+			#
+			#      Transactions that triggered this event. Comma separated list
+			#
+			# $5 = machines
+			#
+			#      Machines that triggered this event. Comma separated list of identifiers
+			#
+			# $6 = tiers
+			#
+			#      Tiers that triggered this event. Comma separated list
+			#
+			# $7 = eventTime
+			#
+			#      Event time
+			#
+			# $8 = severity
+			#
+			#      Event severity ERROR, WARN, INFO
+			#
+			# $9 = type
+			#
+			#      Event type
+			#
+			# $10 = subtype
+			#
+			#      Event subtype
+			#
+			# $11 = summary
+			#
+			#      Event summary text
+			#
+			# $12 = link
+			#
+			#      Deep link to event
+			#
+			# $13 = tag
+			#
+			#      Tag of the event
+			#
+			# $14 = eventType
+			#
+			#      Type of the event like POLICY_OPEN, POLICY_CLOSE etc
+			#
+			# $15 = ipAddresses
+			#
+			#      IP Addresses for affected nodes
+			#
+			# $16 = incidentId
+			#
+			#      The unique ID for the health rule violation
+			#
+			#######################
+
+			$application = $1
+			$triggeredBy = $2
+			$nodes = $3
+			$txns = $4
+			$machines = $5
+			$tiers = $6
+			$eventTime = $7
+			$severity = $8
+			$type = $9
+			$subtype = $10
+			$summary = $11
+			$link = $12
+			@URL=$link
+			$tag = $13
+			$eventType = $14
+			$ipAddresses = $15
+			$incidentId = $16
+			$OS_EventId = "SNMPTRAP-AppDynamics-APPD-CTLR-MIB-nonPolicyEvent"
+
+			@AlertGroup = $triggeredBy
+			@AlertKey = $application+$triggeredBy+$nodes+$txns
+			@Summary = $summary
+
+			$DEFAULT_Severity = 3
+			$DEFAULT_Type = 1
+			$DEFAULT_ExpireTime = 0
+			@ExpireTime = 1800
+			@Node=$application
+			
+                        switch($type) {
+                                case "SNAPSHOT":
+                                  @AlertKey=extract($summary,".*met for the (.*) Business Transaction.*")
+                                default:
+                                  @AlertKey=$application+$triggeredBy+$nodes+$txns
+                        }
+
+			@Identifier = @Node + " " + @AlertKey + " " + @AlertGroup 
+
+			details($application,$triggeredBy,$nodes,$txns,$machines,$tiers,$eventTime,$severity,$type,$subtype,$summary,$link,$tag,$eventType,$ipAddresses,$incidentId)
+
+		default:
+			@Summary = "AppDynamics Specific Trap Number (" + $specific-trap + ") Received for Enterprise " + $enterprise
+			@Severity = 1
+			@Identifier = @Node + " " + @Agent + " " + @Manager + " " + $enterprise + " " + $generic-trap + " " + $specific-trap
+			details($*)
+	}
+
+##########
+# Handle Severity via Lookup.
+##########
+
+if(exists($SEV_KEY))
+{
+    [$OS_Severity,$OS_Type,$OS_ExpireTime] = lookup($SEV_KEY, AppDynamics-APPD-CTLR-MIB_sev)
+}
+else
+{
+    [$OS_Severity,$OS_Type,$OS_ExpireTime] = lookup($OS_EventId, AppDynamics-APPD-CTLR-MIB_sev)
+}
+include "$NC_RULES_HOME/include-common/AssignSev.include.common.rules"
+
+##########
+# End of Severity via Lookup.
+##########
+
+##########
+# Enter "Advanced" and "User" includes
+##########
+
+include "$NC_RULES_HOME/include-snmptrap/AppDynamics/AppDynamics-APPD-CTLR-MIB.adv.include.snmptrap.rules"
+include "$NC_RULES_HOME/include-snmptrap/AppDynamics/AppDynamics-APPD-CTLR-MIB.user.include.snmptrap.rules"
+
+##########
+# End of "Advanced" and "User" includes.
+##########
+
+log(DEBUG, "<<<<< Leaving... AppDynamics-APPD-CTLR-MIB.include.snmptrap.rules >>>>>")

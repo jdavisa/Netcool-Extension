@@ -1,0 +1,15 @@
+###############################################################################
+# AppDynamics-preclass.snmptrap.lookup
+# Automatically created by MIB Manager
+# May 27, 2015 10:20:02 AM
+###############################################################################
+table AppDynamics = 
+{
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenWarning","0"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenCritical","0"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenUpgraded","0"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyOpenDowngraded","0"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-policyClosed","0"},
+	{"SNMPTRAP-AppDynamics-APPD-CTLR-MIB-nonPolicyEvent","0"}
+}
+default = {"Unknown"}

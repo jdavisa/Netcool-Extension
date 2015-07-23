@@ -1,0 +1,9 @@
+###############################################################################
+# AppDynamics.m2r.master.include.lookup
+# Automatically created by MIB Manager
+# May 27, 2015 10:20:02 AM
+###############################################################################
+
+include "$NC_RULES_HOME/include-snmptrap/AppDynamics/AppDynamics-preclass.snmptrap.lookup"
+
+include "$NC_RULES_HOME/include-snmptrap/AppDynamics/AppDynamics-APPD-CTLR-MIB.sev.snmptrap.lookup"
